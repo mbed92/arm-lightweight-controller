@@ -15,6 +15,9 @@ This module is based purely on Python packages. Only numpy is required. Tested o
 MoveIt is not needed to move a real robot. Whole communication is based on sending and reading 
 proper bytes via sockets.
 
+## TCP/IP communication details
+Universal Robots provide the [description of TCP/IP packages](https://www.universal-robots.com/how-tos-and-faqs/how-to/ur-how-tos/remote-control-via-tcpip-16496/) that are sent from robot's controller via sockets. The current communication schema in **ur3-lightweight-controller** is based on that. In order to add more functionalities see attached files under provided link.
+
 # Usage
 See **run.py** file for example of use.
 
