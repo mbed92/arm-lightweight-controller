@@ -65,7 +65,7 @@ class Manipulator:
     def grip(self, range_open):
         pass
 
-    def move(self, point, movement_type, is_pose):
+    def move(self, trajectory, movement_type, is_pose):
         raise NotImplementedError("Implement this method")
 
     def get_pose(self):
