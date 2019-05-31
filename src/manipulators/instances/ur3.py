@@ -136,6 +136,10 @@ class Ur3(Manipulator):
         command = rg6_cmd(range_open)
         self.socket_write.send(command)
 
+    @robot_command
+    def write_custom_command(self, command):
+        self.socket_write.send(command)
+
     def get_data_from_ur3_package(self, msg, start_byte, stop_byte, num_chunks, chunk_size):
         values_bytes = msg[start_byte:stop_byte]
         values = list()
