@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import cv2
 import numpy as np
 import math
@@ -36,15 +34,15 @@ def rotation_matrix(axis, angle):
 
 
 # Checks if a matrix is a valid rotation matrix.
-def isRotationMatrix(R):
+def is_rotation_mat(R):
     Rt = np.transpose(R)
-    shouldBeIdentity = np.dot(Rt, R)
+    is_identity = np.dot(Rt, R)
     I = np.identity(3, dtype=R.dtype)
-    n = np.linalg.norm(I - shouldBeIdentity)
+    n = np.linalg.norm(I - is_identity)
     return n < 1e-6
 
 
-def rotationMatrixToEulerAngles(R):
+def rot2euler(R):
     sy = math.sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
 
     singular = sy < 1e-6
@@ -61,25 +59,7 @@ def rotationMatrixToEulerAngles(R):
     return np.array([x, y, z])
 
 
-def pose2mat(pose):
-    assert isinstance(pose, np.ndarray)
-    r = cv2.Rodrigues(pose[3:])[0]
-    h = np.array([[pose[0]], [pose[1]], [pose[2]]])
-    rt = np.concatenate([r, h], axis=1)
-    bottom_row = np.array([0, 0, 0, 1]).reshape((1, 4))
-    rt = np.concatenate([rt, bottom_row], axis=0)
-    return rt
-
-
-def mat2pose(mat):
-    assert isinstance(mat, np.ndarray)
-    rvec = cv2.Rodrigues(mat[:3, :3])[0].reshape(1, 3)
-    tvec = np.asarray(mat[:3, 3]).reshape(1, 3)
-    pose = np.vstack([tvec, rvec]).reshape(6)
-    return pose
-
-
-def eulerAnglesToRotationMatrix(theta):
+def euler2rot(theta):
     R_x = np.array([[1, 0, 0],
                     [0, math.cos(theta[0]), -math.sin(theta[0])],
                     [0, math.sin(theta[0]), math.cos(theta[0])]
@@ -98,6 +78,24 @@ def eulerAnglesToRotationMatrix(theta):
     R = np.dot(R_z, np.dot(R_y, R_x))
 
     return R
+
+
+def pose2mat(pose):
+    assert isinstance(pose, np.ndarray)
+    r = cv2.Rodrigues(pose[3:])[0]
+    h = np.array([[pose[0]], [pose[1]], [pose[2]]])
+    rt = np.concatenate([r, h], axis=1)
+    bottom_row = np.array([0, 0, 0, 1]).reshape((1, 4))
+    rt = np.concatenate([rt, bottom_row], axis=0)
+    return rt
+
+
+def mat2pose(mat):
+    assert isinstance(mat, np.ndarray)
+    rvec = cv2.Rodrigues(mat[:3, :3])[0].reshape(1, 3)
+    tvec = np.asarray(mat[:3, 3]).reshape(1, 3)
+    pose = np.vstack([tvec, rvec]).reshape(6)
+    return pose
 
 
 def rg6_cmd(range_open, force=50):
