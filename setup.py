@@ -8,4 +8,3 @@ setup(name='ur-lightweight-controller',
       author='Michal Bednarek',
       author_email='michal.bednarek@put.poznan.pl'
       )
-
