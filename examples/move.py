@@ -1,4 +1,4 @@
-# Example of use.
+# Example of use. Execute some trajectory.
 # Author: Michal Bednarek
 
 import robot_controller

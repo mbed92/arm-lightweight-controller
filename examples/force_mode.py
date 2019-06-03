@@ -1,4 +1,4 @@
-# Place for experiments and a work in progress.
+# Execute a trajetory in a force mode.
 # Author: Michal Bednarek
 
 # Force mode example
