@@ -18,7 +18,7 @@ Universal Robots provide the [description of TCP/IP packages](https://www.univer
 A module arm-lightweight-controller can be installed using PyPi:
 
 ```
-pip install robot_controller
+pip2 install robot_controller
 ```
 
 Here is how to start. See **examples/run.py** file for an example of use.
