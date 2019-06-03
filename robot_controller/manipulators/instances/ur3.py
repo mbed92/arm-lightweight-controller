@@ -26,6 +26,7 @@ class Ur3(Manipulator):
         self.ur_package_size = 1060
         self.vec = None
 
+
     @robot_command
     def get_pose(self):
         """
@@ -69,7 +70,7 @@ class Ur3(Manipulator):
         :param a: acceleration
         :param v: velocity
         :param use_mapping: bool. Specify if you want to set points in the external coordinate system (see set_mapping(..))
-        :return: void
+        :return: executed commands in an order (text)
         """
         assert isinstance(trajectory, list)
         assert len(trajectory) > 0
@@ -87,7 +88,7 @@ class Ur3(Manipulator):
 
         commands = list()
         for i, point in enumerate(trajectory):
-            command = self.create_move_command(is_movej, is_pose, use_mapping, point, a, v)
+            command = self.create_move_command(point, is_movej, is_pose, a, v, use_mapping)
 
             self.socket_write.send(command)
             print command
@@ -97,7 +98,22 @@ class Ur3(Manipulator):
             commands.append(command)
         return commands
 
-    def create_move_command(self, is_movej, is_pose, use_mapping, point, a, v):
+    def create_move_command(self, point, is_movej=True, is_pose=True, a=1, v=1, use_mapping=False):
+        """
+        Helper that creates the command for movement without executing it. Can be used for force mode.
+        :param point: point in space expressed as a pose XYZABC or joints J1:6
+        :param is_movej: bool
+        :param is_pose: bool
+        :param a: acceleration
+        :param v: velocity
+        :param use_mapping: bool. Specify if you want to set points in the external coordinate system (see set_mapping(..))
+        :return: created command (text)
+        """
+        assert isinstance(point, np.ndarray)
+        assert point.size == 6
+        assert isinstance(is_movej, bool)
+        assert isinstance(is_pose, bool)
+
         command = ""
         if is_movej:
             command += "movej("
@@ -162,3 +178,45 @@ class Ur3(Manipulator):
 
             values.append(unpack('d', value)[0])
         return values
+
+    @robot_command
+    def execute_in_force_mode(self, trajectory_commands,
+                              task_frame=np.asarray([0, 0, 0, 0, 0, 0]), selection_vector=np.asarray([0, 0, 1, 0, 0, 0]),
+                              wrench=np.asarray([0.0, 0.0, 5.0, 0.0, 0.0, 0.0]), type=1,
+                              limits=np.asarray([0.1, 0.1, 0.15, 0.3490658503988659, 0.3490658503988659, 0.3490658503988659])):
+        """
+        Executes constructed commands in the specified force mode. Please see URScript API reference doc - force_mode(). All
+        values must be provided as numpy arrays.
+        :param trajectory_commands: list of commands that will be executed using force mode in string
+        :param task_frame: A pose vector that defines the force frame relative to the base frame.
+        :param selection_vector: A 6d vector of 0s and 1s. 1 means that the robot will be compliant in the corresponding axis of the task frame.
+        :param wrench: The forces/torques the robot will apply to its environment.
+        :param type: An integer [1;3] specifying how the robot interprets the force frame.
+        :param limits:  6d vector. For compliant axes, these values are the maximum allowed tcp speed along/about the axis.
+        :return: executed command
+        """
+
+        assert isinstance(trajectory_commands, list) and len(trajectory_commands) > 0 and \
+               isinstance(trajectory_commands[0], str)
+        assert isinstance(task_frame, np.ndarray) and isinstance(selection_vector, np.ndarray) and \
+               isinstance(wrench, np.ndarray) and isinstance(limits, np.ndarray)
+
+        force_mode_path = "def myProg():\n" \
+                          "\tforce_mode(p{0}, {1}, {2}, {3}, {4})\n" \
+                          "\tsleep(0.5)\n".format(np.array2string(task_frame, separator=','),
+                                                  np.array2string(selection_vector, separator=','),
+                                                  np.array2string(wrench, separator=','),
+                                                  type,
+                                                  np.array2string(limits, separator=','))
+
+        for cmd in trajectory_commands:
+            force_mode_path += "\t" + cmd + "\tsleep(2.0)\n"
+        force_mode_path += "end\n"
+
+        self.write_custom_command(force_mode_path)
+
+        time.sleep(5)
+        self.write_custom_command("end_force_mode()\n")
+
+        return force_mode_path + "end_force_mode()\n"
+
