@@ -1,7 +1,7 @@
 # Example of use.
 # Author: Michal Bednarek
 
-from src.manipulators import Ur3
+from robot_controller.manipulators import Ur3
 
 # communicate with a robot
 manipulator = Ur3("150.254.47.150", 30003, 30002)
