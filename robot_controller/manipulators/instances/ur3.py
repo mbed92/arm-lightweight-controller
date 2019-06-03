@@ -84,29 +84,38 @@ class Ur3(Manipulator):
             assert self.coordinates_mapping.shape == (4, 4)
 
         print "Trajectory has {0} target points".format(len(trajectory))
+
+        commands = list()
         for i, point in enumerate(trajectory):
-
-            command = ""
-
-            if is_movej:
-                command += "movej("
-            else:
-                command += "movel("
-
-            if is_pose:
-                command += "p"
-
-            if use_mapping and is_pose:
-                point = mat2pose(np.linalg.inv(self.coordinates_mapping).dot(pose2mat(point)))
-
-            print point
-            command += "[{}, {}, {}, {}, {}, {}], ".format(*point)
-            command += "a={0},v={1}".format(a, v)
-            command += ")\n"
+            command = self.create_move_command(is_movej, is_pose, use_mapping, point, a, v)
 
             self.socket_write.send(command)
+            print command
+
             self.wait_for_move_end(point, is_pose)
             print "Achieved {0} target points".format(i)
+            commands.append(command)
+        return commands
+
+    def create_move_command(self, is_movej, is_pose, use_mapping, point, a, v):
+        command = ""
+        if is_movej:
+            command += "movej("
+        else:
+            command += "movel("
+
+        if is_pose:
+            command += "p"
+
+        if use_mapping and is_pose:
+            point = mat2pose(np.linalg.inv(self.coordinates_mapping).dot(pose2mat(point)))
+
+        print point
+        command += "[{}, {}, {}, {}, {}, {}], ".format(*point)
+        command += "a={0},v={1}".format(a, v)
+        command += ")\n"
+
+        return command
 
     def wait_for_move_end(self, target_position, is_pose):
         start_time = time.time()

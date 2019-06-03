@@ -65,11 +65,14 @@ class Manipulator:
     def grip(self, range_open):
         pass
 
-    def move(self, trajectory, movement_type, is_pose):
+    def move(self, trajectory, is_movej, is_pose, a, v, use_mapping):
         raise NotImplementedError("Implement this method")
 
     def get_pose(self):
         raise NotImplementedError("Implement this method")
 
     def get_joints(self):
+        raise NotImplementedError("Implement this method")
+
+    def execute_in_force_mode(self, trajectory):
         raise NotImplementedError("Implement this method")
