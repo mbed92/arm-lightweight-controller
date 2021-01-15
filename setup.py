@@ -1,10 +1,10 @@
-import os, sys
-from setuptools import setup, find_packages
+import os
+import sys
 
+from setuptools import setup, find_packages
 
 CURRENT_PYTHON = sys.version_info[:2]
 REQUIRED_PYTHON = (2, 7)
-
 
 if CURRENT_PYTHON > REQUIRED_PYTHON:
     sys.stderr.write("========================== \n"
@@ -21,16 +21,17 @@ def read(fname):
 
 
 setup(name='robot_controller',
-      version='0.1',
+      version='0.3',
       author='Michal Bednarek',
       description='A high-level framework for programming robotic arms using TCP/IP connection.',
       long_description=read('README.md'),
+      long_description_content_type='text/markdown',
       author_email='michal.bednarek@put.poznan.pl',
       license='MIT',
       keywords="robotics,arm,manipulator,ur3,ur5,universal,robots",
 
       # project setup
       packages=find_packages(),
-      install_requires=['opencv_python>=3.3.0.10', 'numpy>=1.12.0'],
+      install_requires=['opencv_python==4.2.0.32', 'numpy>=1.12.0'],
       py_modules=['robot_controller']
       )

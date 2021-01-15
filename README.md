@@ -44,10 +44,8 @@ coordinate system or some external (see: set_mapping() method).
 * **def set_mapping(self, matrix)** - sets a mapping between a robot coordinate 
 system and some external one. While this method is invoked, user can pass trajectory in some external 
 coordinate system (see: move() command).
-* **def execute_in_force_mode(self, trajectory_commands,
-                              task_frame=np.asarray([0, 0, 0, 0, 0, 0]), selection_vector=np.asarray([0, 0, 1, 0, 0, 0]),
-                              wrench=np.asarray([0.0, 0.0, 5.0, 0.0, 0.0, 0.0]), type=1,
-                              limits=np.asarray([0.1, 0.1, 0.15, 0.3490658503988659, 0.3490658503988659, 0.3490658503988659]))** - Executes constructed commands in the specified force mode. Please see URScript API reference doc - force_mode()
+* **def execute_in_force_mode(self, trajectory_commands, task_frame, selection_vector, wrench, type=1, limits)** - 
+Executes constructed commands in the specified force mode. Please see URScript API reference doc - force_mode()
 
 # Contribution
 All questions to: _michal.bednarek@put.poznan.pl_
