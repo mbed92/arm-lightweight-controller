@@ -2,6 +2,9 @@
 
 from struct import *
 import time
+import socket
+import struct
+
 
 from ..manipulator import Manipulator
 from ..utils import *
@@ -26,19 +29,63 @@ class Ur3(Manipulator):
         self.ur_package_size = 1060
         self.vec = None
 
-
+#get_pose based on http://www.zacobria.com/universal-robots-knowledge-base-tech-support-forum-hints-tips/knowledge-base/client-interfaces-cartesian-matlab-data/?fbclid=IwAR1ZMKLu1ioCA3yiwE80Tzgbye-LZIq1gVxqvsJw0B9-Pbm2IE7Hitev41w 
+# by Zacobria Lars Skovsgaard
+    @robot_command
     @robot_command
     def get_pose(self):
         """
         Returns a pose of a connected robot.
         :return: np.array with 6 elements: [x, y, z, a, b, c]
         """
-        # read package from UR3 -> 1060 bytes as list()
-        msg_byte = list(self.socket_read.recv(self.ur_package_size))
 
-        # crop data - pick only XYZABC values from package
-        pose = self.get_data_from_ur3_package(msg_byte, self.start_chunk_cartesian, self.stop_chunk_cartesian,
-                                              self.num_chunks, self.chunk_size)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(10)
+        s.connect((self.ip, self.port_read))
+        time.sleep(1.00)
+        packet_1 = s.recv(4)
+        packet_2 = s.recv(8)
+        packet_3 = s.recv(48)
+        packet_4 = s.recv(48)
+        packet_5 = s.recv(48)
+        packet_6 = s.recv(48)
+        packet_7 = s.recv(48)
+        packet_8 = s.recv(48)
+        packet_9 = s.recv(48)
+        packet_10 = s.recv(48)
+        packet_11 = s.recv(48)
+        packet_12 = s.recv(8)
+        packet_12 = packet_12.encode("hex")  # convert the data from \x hex notation to plain hex
+        x = str(packet_12)
+        x = struct.unpack('!d', packet_12.decode('hex'))[0]
+
+        packet_13 = s.recv(8)
+        packet_13 = packet_13.encode("hex")  # convert the data from \x hex notation to plain hex
+        y = str(packet_13)
+
+        y = struct.unpack('!d', packet_13.decode('hex'))[0]
+
+        packet_14 = s.recv(8)
+        packet_14 = packet_14.encode("hex")  # convert the data from \x hex notation to plain hex
+        z = str(packet_14)
+        z = struct.unpack('!d', packet_14.decode('hex'))[0]
+
+        packet_15 = s.recv(8)
+        packet_15 = packet_15.encode("hex")  # convert the data from \x hex notation to plain hex
+        Rx = str(packet_15)
+        Rx = struct.unpack('!d', packet_15.decode('hex'))[0]
+
+        packet_16 = s.recv(8)
+        packet_16 = packet_16.encode("hex")  # convert the data from \x hex notation to plain hex
+        Ry = str(packet_16)
+        Ry = struct.unpack('!d', packet_16.decode('hex'))[0]
+
+        packet_17 = s.recv(8)
+        packet_17 = packet_17.encode("hex")  # convert the data from \x hex notation to plain hex
+        Rz = str(packet_17)
+        Rz = struct.unpack('!d', packet_17.decode('hex'))[0]
+
+        pose = [x, y, z, Rx, Ry, Rz]
 
         return np.asarray(pose)
 
@@ -48,19 +95,51 @@ class Ur3(Manipulator):
         Returns joint coordinates of a connected robot.
         :return: np.array with 6 elements [j1, j2, j3, j4, j5, j6]
         """
-        # read package from UR3 -> 1060 bytes as list()
-        msg_byte = list(self.socket_read.recv(self.ur_package_size))
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(10)
+        s.connect((self.ip, self.port_read))
+        time.sleep(1.00)
+        packet_1 = s.recv(4)
+        packet_2 = s.recv(8)
+        packet_3 = s.recv(48)
+        packet_4 = s.recv(48)
+        packet_5 = s.recv(48)
+        packet_6 = s.recv(48)
+        packet_7 = s.recv(48)
+        packet_8 = s.recv(8)
+        packet_8 = packet_8.encode("hex")  # convert the data from \x hex notation to plain hex
+        q1 = str(packet_8)
+        q1 = struct.unpack('!d', packet_8.decode('hex'))[0]
 
-        # crop data - pick only XYZABC values from package
-        joints = self.get_data_from_ur3_package(msg_byte, self.start_chunk_joint, self.stop_chunk_joint,
-                                                self.num_chunks, self.chunk_size)
+        packet_9 = s.recv(8)
+        packet_9 = packet_9.encode("hex")  # convert the data from \x hex notation to plain hex
+        q2 = str(packet_9)
 
-        if deg:
-            joints = [np.rad2deg(joint) for joint in joints]
+        q2 = struct.unpack('!d', packet_9.decode('hex'))[0]
 
-        return np.asarray(joints)
+        packet_10 = s.recv(8)
+        packet_10 = packet_10.encode("hex")  # convert the data from \x hex notation to plain hex
+        q3 = str(packet_10)
+        q3 = struct.unpack('!d', packet_10.decode('hex'))[0]
 
-    @robot_command
+        packet_11 = s.recv(8)
+        packet_11 = packet_11.encode("hex")  # convert the data from \x hex notation to plain hex
+        q4 = str(packet_11)
+        q4 = struct.unpack('!d', packet_11.decode('hex'))[0]
+
+        packet_12 = s.recv(8)
+        packet_12 = packet_12.encode("hex")  # convert the data from \x hex notation to plain hex
+        q5 = str(packet_12)
+        q5 = struct.unpack('!d', packet_12.decode('hex'))[0]
+
+        packet_13 = s.recv(8)
+        packet_13 = packet_13.encode("hex")  # convert the data from \x hex notation to plain hex
+        q6 = str(packet_13)
+        q6 = struct.unpack('!d', packet_13.decode('hex'))[0]
+
+        pose = [q1, q2, q3, q4, q5, q6]
+
+    # @robot_command
     def move(self, trajectory, is_movej=True, is_pose=True, a=1, v=1, use_mapping=False):
         """
         Moves a connected robot.
