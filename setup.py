@@ -32,6 +32,6 @@ setup(name='robot_controller',
 
       # project setup
       packages=find_packages(),
-      install_requires=['opencv_python==4.2.0.32', 'numpy>=1.12.0'],
+      install_requires=['opencv_python==4.8.1.78', 'numpy>=1.12.0'],
       py_modules=['robot_controller']
       )
